@@ -1,0 +1,151 @@
+# ศ.ต.ภ. - ศูนย์ควบคุมการไปต่างประเทศของพระภิกษุสามเณร (SOTOPO)
+
+ระบบสารสนเทศและการให้บริการออนไลน์ ศูนย์ควบคุมการไปต่างประเทศของพระภิกษุสามเณร (ศ.ต.ภ.) ภายใต้มหาเถรสมาคม สำหรับการบริหารจัดการ ติดตามสถานะคำขอเดินทาง ประกาศผลการอนุมัติ และเผยแพร่ข้อมูลข่าวสารพระธรรมทูตสายต่างประเทศ
+
+---
+
+## 📸 ภาพรวมระบบ (Screenshots)
+
+| หน้าแรก (Home & Tracking) | ประกาศผลการอนุมัติ (Announcements) |
+|:---:|:---:|
+| ![Home](public/screenshots/home.png) | ![Announcements](public/screenshots/announcements.png) |
+
+| คณะกรรมการ ศ.ต.ภ. (Committee) | ขั้นตอนการขอหนังสือเดินทางและวีซ่า (Guidelines) |
+|:---:|:---:|
+| ![Committee](public/screenshots/committee.png) | ![Guidelines](public/screenshots/guide.png) |
+
+---
+
+## ✨ ฟีเจอร์หลักของระบบ (Key Features)
+
+1. **ระบบประชาสัมพันธ์และข่าวสาร (News & Activities)**
+   - แสดงข่าวสาร มติมหาเถรสมาคม กิจกรรมการประชุม และหลักสูตรอบรมพระธรรมทูต
+   - รองรับการกรองตามหมวดหมู่ (Tag) ค้นหาคำสำคัญ (Search) และอ่านเนื้อหาฉบับเต็มผ่าน Modal แบบ Rich HTML
+
+2. **ระบบติดตามสถานะคำขอออนไลน์ (Real-time Tracking)**
+   - ตรวจสอบสถานะการยื่นคำร้องผ่านรหัสติดตาม (Tracking Number เช่น `ST-2026-0001`)
+   - แสดงสถานะกระบวนการทำงาน 4 ขั้นตอน (ยื่นคำร้อง ➜ ตรวจสอบเอกสาร ➜ เสนอคณะกรรมการ ➜ อนุมัติออกหนังสือ)
+
+3. **ระบบยื่นคำร้องขออนุมัติออนไลน์ (Online Application Submission)**
+   - ฟอร์มยื่นคำร้องขอเดินทางไปต่างประเทศสำหรับพระภิกษุสามเณร
+   - บันทึกข้อมูลและออกรหัสติดตามอัตโนมัติลงในฐานข้อมูล MySQL
+
+4. **ทำเนียบคณะกรรมการ ศ.ต.ภ. (Executive & Committee Directory)**
+   - แสดงรายนามประธาน รองประธาน และกรรมการ ศ.ต.ภ. พร้อมตำแหน่งและรูปภาพ
+
+5. **ทะเบียนประกาศผลการอนุมัติ (Approved Monks Registry)**
+   - ตรวจสอบรายชื่อพระภิกษุสามเณรที่ได้รับอนุมัติเดินทางไปต่างประเทศ
+   - ระบบค้นหาอัจฉริยะ (ค้นหาตามชื่อพระ, วัดต้นสังกัด, ประเทศปลายทาง หรือเลขที่ประกาศ) พร้อมระบบแบ่งหน้า (Pagination)
+
+6. **ข้อมูลสำนักงานและจุดประสานงาน (Offices & Contact Info)**
+   - ข้อมูลที่ตั้งสำนักงานใหญ่ (วัดสระเกศราชวรมหาวิหาร) และศูนย์ประสานงาน (วัดประยุรวงศาวาสวรวิหาร) พร้อมเบอร์ติดต่อและเวลาทำการ
+
+7. **คู่มือและแบบฟอร์มเอกสาร (Guides & Form Downloads)**
+   - ข้อมูลขั้นตอนการขอหนังสือเดินทางเล่มสีน้ำเงิน (Official Passport) และการขอวีซ่าประเภททางศาสนา (Religious Visa)
+   - แหล่งดาวน์โหลดแบบฟอร์มคำขอและระเบียบมหาเถรสมาคมที่เกี่ยวข้อง
+
+---
+
+## 🛠️ สถาปัตยกรรมและเทคโนโลยีที่ใช้ (Tech Stack)
+
+### Frontend
+- **Framework / Library**: React 19 + TypeScript
+- **Build Tool**: Vite 6
+- **Styling**: Tailwind CSS (Material Design 3 & Warm Saffron Buddhist Color Palette)
+- **Icons & Typography**: Google Material Symbols Outlined, Google Fonts (`Sarabun`, `Be Vietnam Pro`)
+- **Routing**: Client-side Hash Routing (`#/`, `#/committee`, `#/office`, `#/visa`, `#/announcements`, `#/guide`)
+
+### Backend
+- **Language**: PHP 8.x
+- **Database Engine**: MySQL 8.x / MariaDB (รองรับ Fallback SQLite)
+- **Database Driver**: PDO (PHP Data Objects) with Prepared Statements
+- **Architecture**: Lightweight RESTful JSON API (`backend/api.php`)
+- **Security & Config**: Environment variables (`.env`), CORS headers handling
+
+---
+
+## 📁 โครงสร้างโปรเจกต์ (Project Structure)
+
+```text
+sotopo/
+├── .env                  # การตั้งค่า Environment (Database & Config)
+├── .env.example          # ตัวอย่างไฟล์ตั้งค่า Environment
+├── .gitignore            # Git ignore rules
+├── API.md                # รายละเอียดและ Specification ของ REST API
+├── CHANGELOG.md          # ประวัติการอัปเดตและรุ่นของโปรเจกต์
+├── CONTRIBUTING.md       # ข้อตกลงและแนวทางการพัฒนาโค้ด
+├── DATABASE.md           # โครงสร้างฐานข้อมูล Data Dictionary & ER Diagram
+├── README.md             # เอกสารคู่มือโปรเจกต์หลัก
+├── SETUP.md              # คู่มือการติดตั้งและรันโปรเจกต์แบบละเอียด
+├── index.html            # Entry HTML พร้อม Tailwind config & Web Fonts
+├── mysql.sql             # SQL Schema & Seed Data สำหรับนำเข้า MySQL
+├── package.json          # Node.js dependencies & scripts
+├── tsconfig.json         # TypeScript configuration
+├── vite.config.ts        # Vite configuration
+├── backend/              # ฝั่ง Backend API
+│   ├── README.md         # คู่มือการทำงานของ Backend PHP
+│   └── api.php           # REST API Endpoint หลัก
+├── public/               # Static Assets
+│   ├── images/           # รูปภาพโลโก้ กรรมการ ข่าวสาร และสถานที่
+│   └── screenshots/      # ภาพแคปเจอร์หน้าจอระบบ
+└── src/                  # React Application Source Code
+    ├── App.tsx           # คอมโพเนนต์หลักของระบบ (UI, State & Hash Router)
+    ├── main.tsx          # React Root Mounting
+    └── vite-env.d.ts     # Vite TypeScript type declarations
+```
+
+---
+
+## 🚀 การติดตั้งและเริ่มต้นใช้งาน (Quick Start)
+
+### 1. ความต้องการของระบบ (Prerequisites)
+- [Node.js](https://nodejs.org/) (Version 18.0 ขึ้นไป)
+- [PHP](https://www.php.net/) (Version 8.0 ขึ้นไป)
+- [MySQL](https://www.mysql.com/) หรือ [MariaDB](https://mariadb.org/) (หรือใช้ผ่าน XAMPP / MAMP / Laragon)
+
+### 2. ติดตั้ง Dependencies
+```bash
+npm install
+```
+
+### 3. ตั้งค่าฐานข้อมูล (Database Setup)
+1. เปิด XAMPP หรือ MySQL Server
+2. สร้างฐานข้อมูล `sotopo` หรือรันคำสั่งจากไฟล์ `mysql.sql`:
+   ```bash
+   mysql -u root -p < mysql.sql
+   ```
+3. คัดลอกและตั้งค่า `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+### 4. สตาร์ทโปรเจกต์ (Running Locally)
+
+**ฝั่ง Frontend (Vite Dev Server):**
+```bash
+npm run dev
+```
+เปิดบราวเซอร์ไปที่: `http://localhost:5173/`
+
+**ฝั่ง Backend (PHP Built-in Server หรือรันผ่าน XAMPP/Apache):**
+หากต้องการทดสอบ Backend แยกด้วย PHP Built-in Server:
+```bash
+php -S 127.0.0.1:8000
+```
+
+---
+
+## 📚 เอกสารเพิ่มเติม (Documentation)
+
+- 📖 [คู่มือการติดตั้งและการตั้งค่าสภาพแวดล้อม (SETUP.md)](./SETUP.md)
+- 🔌 [เอกสาร API Specifications (API.md)](./API.md)
+- 🗄️ [โครงสร้างฐานข้อมูลและตาราง (DATABASE.md)](./DATABASE.md)
+- 🖥️ [คู่มือการทำงานของ Backend PHP (backend/README.md)](./backend/README.md)
+- 🤝 [แนวทางการมีส่วนร่วมและพัฒนา (CONTRIBUTING.md)](./CONTRIBUTING.md)
+- 📝 [บันทึกประวัติการเปลี่ยนแปลง (CHANGELOG.md)](./CHANGELOG.md)
+
+---
+
+## 📄 ใบอนุญาต (License)
+
+โปรเจกต์นี้พัฒนาขึ้นเพื่อการใช้งานของ **ศูนย์ควบคุมการไปต่างประเทศของพระภิกษุสามเณร (ศ.ต.ภ.)** สงวนลิขสิทธิ์ตามระเบียบมหาเถรสมาคม
