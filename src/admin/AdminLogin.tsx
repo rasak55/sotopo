@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { adminLogin } from './adminApi'
+import { adminLogin, getAssetUrl } from './adminApi'
 import { AdminUser } from './adminTypes'
 
 interface AdminLoginProps {
@@ -44,7 +44,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onBackTo
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-tr from-primary to-[#ffb957] p-3 shadow-lg shadow-primary/30 mb-4">
-            <img src="/images/logo.png" alt="ศ.ต.ภ. Logo" className="w-full h-full object-contain filter drop-shadow" />
+            <img src={getAssetUrl('/images/logo.png')} alt="ศ.ต.ภ. Logo" className="w-full h-full object-contain filter drop-shadow" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">ระบบจัดการข้อมูล ศ.ต.ภ.</h1>
           <p className="text-sm text-gray-600 mt-1 font-medium">เข้าสู่ระบบสำหรับเจ้าหน้าที่และผู้ดูแลระบบ (Admin Portal)</p>

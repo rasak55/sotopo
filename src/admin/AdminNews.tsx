@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { adminGetNews, adminSaveNews, adminDeleteNews } from './adminApi'
+import { adminGetNews, adminSaveNews, adminDeleteNews, getAssetUrl } from './adminApi'
 import { NewsItem } from './adminTypes'
 
 export const AdminNews: React.FC = () => {
@@ -190,7 +190,7 @@ export const AdminNews: React.FC = () => {
                   <tr key={item.id} className="hover:bg-amber-50/20 transition">
                     <td className="px-6 py-4 w-24">
                       <img
-                        src={item.image_url || '/images/news1.jpg'}
+                        src={getAssetUrl(item.image_url || '/images/news1.jpg')}
                         alt={item.title}
                         className="w-16 h-12 rounded-lg object-cover border border-gray-200"
                       />

@@ -11,6 +11,10 @@ export default defineConfig({
       '/sotopo/backend': {
         target: 'http://localhost',
         changeOrigin: true
+      },
+      '/backend': {
+        target: 'http://localhost/sotopo',
+        changeOrigin: true
       }
     }
   }

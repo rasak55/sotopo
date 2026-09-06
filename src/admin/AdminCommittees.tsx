@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import {
   adminGetCommittees,
   adminSaveCommittee,
-  adminDeleteCommittee
+  adminDeleteCommittee,
+  getAssetUrl
 } from './adminApi'
 import { CommitteeItem } from './adminTypes'
 
@@ -160,7 +161,7 @@ export const AdminCommittees: React.FC = () => {
                   <tr key={item.id} className="hover:bg-amber-50/20 transition">
                     <td className="px-6 py-4 w-20">
                       <img
-                        src={item.image_url || '/images/comm1.jpg'}
+                        src={getAssetUrl(item.image_url || '/images/comm1.jpg')}
                         alt={item.name}
                         className="w-12 h-14 rounded-lg object-cover border border-gray-200 shadow-xs"
                       />

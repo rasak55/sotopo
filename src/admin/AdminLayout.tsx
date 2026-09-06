@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { AdminUser } from './adminTypes'
+import { getAssetUrl } from './adminApi'
 
 interface AdminLayoutProps {
   user: AdminUser
@@ -54,7 +55,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         {/* Sidebar Brand Header */}
         <div className="p-6 border-b border-[#3a2707] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/images/logo.png" alt="ศ.ต.ภ. Logo" className="h-10 w-auto object-contain" />
+            <img src={getAssetUrl('/images/logo.png')} alt="ศ.ต.ภ. Logo" className="h-10 w-auto object-contain" />
             <div>
               <div className="font-bold text-lg text-[#ffb957] font-be-vietnam tracking-wide">ศ.ต.ภ. ADMIN</div>
               <div className="text-xs text-white/60">ศูนย์ควบคุมการไปต่างประเทศ</div>

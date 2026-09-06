@@ -11,6 +11,13 @@ import {
 const BASE_URL = import.meta.env.BASE_URL || '/'
 const API_BASE = BASE_URL.endsWith('/') ? `${BASE_URL}backend/api.php` : `${BASE_URL}/backend/api.php`
 
+export const getAssetUrl = (path: string) => {
+  if (!path) return ''
+  if (path.startsWith('http://') || path.startsWith('https://')) return path
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path
+  return BASE_URL.endsWith('/') ? `${BASE_URL}${cleanPath}` : `${BASE_URL}/${cleanPath}`
+}
+
 export const getAuthToken = (): string | null => {
   return localStorage.getItem('sotopo_admin_token')
 }
