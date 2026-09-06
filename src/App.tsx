@@ -16,6 +16,7 @@ interface NewsItem {
   date: string
   title: string
   summary: string
+  content?: string
   image_url: string
 }
 
@@ -216,6 +217,10 @@ export default function App() {
 // ==========================================
 function HomePage({ navigateTo }: { navigateTo: (hash: string) => void }) {
   const [news, setNews] = useState<NewsItem[]>([])
+  const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null)
+  const [isAllNewsModalOpen, setIsAllNewsModalOpen] = useState(false)
+  const [newsTagFilter, setNewsTagFilter] = useState('ทั้งหมด')
+  const [newsSearch, setNewsSearch] = useState('')
   const [trackingNo, setTrackingNo] = useState('')
   const [trackingResult, setTrackingResult] = useState<TrackingData | null>(null)
   const [trackingError, setTrackingError] = useState('')
@@ -568,44 +573,304 @@ function HomePage({ navigateTo }: { navigateTo: (hash: string) => void }) {
         <div className="container mx-auto px-6 md:px-12 max-w-[1200px]">
           <div className="flex justify-between items-end mb-10">
             <div>
-              <h3 className="text-2xl font-bold text-on-surface">ข่าวประชาสัมพันธ์ล่าสุด</h3>
-              <p className="text-sm text-on-surface-variant mt-1">ติดตามความเคลื่อนไหวและประกาศจาก ศ.ต.ภ.</p>
+              <h3 className="text-2xl font-bold text-on-surface font-be-vietnam">ข่าวประชาสัมพันธ์ล่าสุด</h3>
+              <p className="text-sm text-on-surface-variant mt-1">ติดตามความเคลื่อนไหว ประกาศ และสาระน่ารู้จาก ศ.ต.ภ.</p>
             </div>
-            <a href="#/" onClick={() => alert('ฟังก์ชันอยู่ระหว่างพัฒนาระบบคลังข่าวสาร')} className="text-sm font-semibold text-primary flex items-center gap-1 hover:underline">
-              ดูข่าวทั้งหมด
-              <span className="material-symbols-outlined text-[18px]">open_in_new</span>
-            </a>
+            <button
+              onClick={() => setIsAllNewsModalOpen(true)}
+              className="text-sm font-semibold text-primary flex items-center gap-1 hover:underline group cursor-pointer"
+            >
+              ดูข่าวทั้งหมด ({news.length} รายการ)
+              <span className="material-symbols-outlined text-[18px] group-hover:translate-x-0.5 transition-transform">open_in_new</span>
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {news.map((item) => (
-              <div key={item.id} className="flex flex-col group cursor-pointer bg-white rounded-xl border border-outline-variant overflow-hidden hover:shadow-md transition-all">
-                <div className="aspect-video overflow-hidden border-b border-outline-variant">
+            {news.slice(0, 6).map((item) => (
+              <div
+                key={item.id}
+                onClick={() => setSelectedNews(item)}
+                className="flex flex-col group cursor-pointer bg-white rounded-xl border border-outline-variant overflow-hidden hover:shadow-lg hover:border-primary transition-all duration-300 transform hover:-translate-y-1"
+              >
+                <div className="aspect-video overflow-hidden border-b border-outline-variant relative">
                   <img
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     alt={item.title}
                     src={getAssetUrl(item.image_url)}
                   />
-                </div>
-                <div className="p-5 flex flex-col flex-grow">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-0.5 bg-primary-container text-on-primary-container text-[10px] font-bold rounded">
+                  <div className="absolute top-3 left-3">
+                    <span className="px-2.5 py-1 bg-primary text-white text-[11px] font-bold rounded-md shadow-sm">
                       {item.tag}
                     </span>
-                    <span className="text-xs text-on-surface-variant font-medium">{item.date}</span>
                   </div>
-                  <h5 className="text-base font-bold text-on-surface mb-2 group-hover:text-primary transition-colors leading-snug">
+                </div>
+                <div className="p-5 flex flex-col flex-grow">
+                  <div className="flex items-center gap-2 mb-2 text-xs text-on-surface-variant">
+                    <span className="material-symbols-outlined text-[16px] text-primary">calendar_today</span>
+                    <span>{item.date}</span>
+                  </div>
+                  <h5 className="text-base font-bold text-on-surface mb-2 group-hover:text-primary transition-colors leading-snug font-be-vietnam line-clamp-2">
                     {item.title}
                   </h5>
                   <p className="text-sm text-on-surface-variant line-clamp-2 mt-auto">
                     {item.summary}
                   </p>
+                  <div className="mt-4 pt-3 border-t border-outline-variant/60 flex items-center justify-between text-xs text-primary font-bold">
+                    <span>อ่านรายละเอียดเพิ่มเติม</span>
+                    <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
       </section>
+
+      {/* 1. Interactive News Detail Modal */}
+      {selectedNews && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-outline-variant shadow-2xl relative animate-scaleUp flex flex-col">
+            {/* Modal Header Bar */}
+            <div className="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-outline-variant px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 bg-primary text-white text-xs font-bold rounded-full">
+                  {selectedNews.tag}
+                </span>
+                <span className="text-xs text-on-surface-variant flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[14px]">calendar_today</span>
+                  {selectedNews.date}
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedNews(null)}
+                className="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full transition-colors"
+                title="ปิดหน้าต่าง"
+              >
+                <span className="material-symbols-outlined text-2xl">close</span>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 md:p-8 space-y-6 flex-grow">
+              {/* Cover Image */}
+              <div className="w-full h-64 md:h-80 rounded-xl overflow-hidden border border-outline-variant shadow-sm relative">
+                <img
+                  src={getAssetUrl(selectedNews.image_url)}
+                  alt={selectedNews.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Title */}
+              <h2 className="text-2xl md:text-3xl font-bold text-on-surface font-be-vietnam leading-snug">
+                {selectedNews.title}
+              </h2>
+
+              {/* Summary Box */}
+              <div className="p-4 md:p-5 bg-primary/5 border-l-4 border-primary rounded-r-xl text-on-surface-variant text-base leading-relaxed">
+                <strong className="text-primary block mb-1 font-be-vietnam">บทคัดย่อ / สรุปสาระสำคัญ:</strong>
+                {selectedNews.summary}
+              </div>
+
+              <div className="thai-divider"></div>
+
+              {/* Full Content Body */}
+              <div
+                className="prose max-w-none text-on-surface text-base leading-relaxed space-y-4 font-sans [&>h4]:text-lg [&>h4]:font-bold [&>h4]:text-primary [&>h4]:mt-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:space-y-1 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:space-y-1 [&>p]:leading-relaxed"
+                dangerouslySetInnerHTML={{
+                  __html: selectedNews.content || `<p>${selectedNews.summary}</p>`,
+                }}
+              />
+
+              {/* Official Stamp Box */}
+              <div className="mt-8 p-4 bg-surface-container-low rounded-xl border border-outline-variant flex items-center justify-between text-xs text-on-surface-variant">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-xl">verified</span>
+                  <span>เผยแพร่โดย: ศูนย์ควบคุมการไปต่างประเทศของพระภิกษุสามเณร (ศ.ต.ภ.)</span>
+                </div>
+                <span className="font-mono text-[11px]">Ref ID: NEWS-{selectedNews.id}</span>
+              </div>
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="sticky bottom-0 bg-white/95 backdrop-blur border-t border-outline-variant px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    navigator.clipboard?.writeText(window.location.href);
+                    alert('คัดลอกลิงก์ข่าวเรียบร้อยแล้ว');
+                  }}
+                  className="px-4 py-2 bg-surface-container-low hover:bg-surface-container border border-outline-variant text-on-surface font-semibold text-xs rounded-lg flex items-center gap-1.5 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[16px]">share</span>
+                  แชร์ข่าว
+                </button>
+                <button
+                  onClick={() => window.print()}
+                  className="px-4 py-2 bg-surface-container-low hover:bg-surface-container border border-outline-variant text-on-surface font-semibold text-xs rounded-lg flex items-center gap-1.5 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[16px]">print</span>
+                  พิมพ์เอกสาร
+                </button>
+              </div>
+              <button
+                onClick={() => setSelectedNews(null)}
+                className="px-6 py-2 bg-primary text-white font-semibold text-xs rounded-lg hover:brightness-110 transition-all"
+              >
+                ปิดหน้าต่าง
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. Full News & Announcements Archive Modal */}
+      {isAllNewsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden border border-outline-variant shadow-2xl relative animate-scaleUp flex flex-col">
+            {/* Header */}
+            <div className="bg-white border-b border-outline-variant px-6 py-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold text-primary font-be-vietnam flex items-center gap-2">
+                  <span className="material-symbols-outlined">feed</span>
+                  คลังข่าวสารและประกาศ ศ.ต.ภ.
+                </h2>
+                <p className="text-xs text-on-surface-variant mt-0.5">
+                  ค้นหาและติดตามประกาศ ระเบียบปฏิบัติ มติมหาเถรสมาคม และสาระน่ารู้ทั้งหมด
+                </p>
+              </div>
+              <button
+                onClick={() => setIsAllNewsModalOpen(false)}
+                className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full transition-colors"
+              >
+                <span className="material-symbols-outlined text-2xl">close</span>
+              </button>
+            </div>
+
+            {/* Filter & Search Toolbar */}
+            <div className="p-6 bg-surface-container-low border-b border-outline-variant space-y-4">
+              {/* Search Box */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="พิมพ์คำค้นหาข่าว เช่น การประชุม, หนังสือเดินทาง, วีซ่า, มติ..."
+                  value={newsSearch}
+                  onChange={(e) => setNewsSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-outline rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm shadow-sm"
+                />
+                <span className="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-[20px]">
+                  search
+                </span>
+                {newsSearch && (
+                  <button
+                    onClick={() => setNewsSearch('')}
+                    className="absolute right-3 top-2.5 text-on-surface-variant hover:text-on-surface text-sm"
+                  >
+                    ล้างคำค้น
+                  </button>
+                )}
+              </div>
+
+              {/* Tag Categories */}
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-xs font-semibold text-on-surface-variant mr-1">หมวดหมู่:</span>
+                {['ทั้งหมด', 'ข่าวสาร', 'ประกาศ', 'สาระน่ารู้', 'การอบรม', 'ระเบียบ ศ.ต.ภ.', 'มติมส.', 'บริการ'].map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setNewsTagFilter(t)}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                      newsTagFilter === t
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'bg-white text-on-surface border border-outline-variant hover:bg-surface-container'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* News Archive Grid */}
+            <div className="p-6 md:p-8 overflow-y-auto flex-grow">
+              {news.filter((item) => {
+                const matchTag = newsTagFilter === 'ทั้งหมด' || item.tag === newsTagFilter;
+                const matchSearch =
+                  newsSearch.trim() === '' ||
+                  item.title.toLowerCase().includes(newsSearch.toLowerCase()) ||
+                  item.summary.toLowerCase().includes(newsSearch.toLowerCase()) ||
+                  (item.content && item.content.toLowerCase().includes(newsSearch.toLowerCase()));
+                return matchTag && matchSearch;
+              }).length === 0 ? (
+                <div className="py-16 text-center text-on-surface-variant">
+                  <span className="material-symbols-outlined text-5xl mb-2 text-outline">search_off</span>
+                  <p className="text-base font-semibold">ไม่พบข่าวสารที่ตรงกับเงื่อนไขการค้นหา</p>
+                  <p className="text-xs mt-1">กรุณาลองเปลี่ยนคำค้นหรือเลือกหมวดหมู่อื่น</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {news
+                    .filter((item) => {
+                      const matchTag = newsTagFilter === 'ทั้งหมด' || item.tag === newsTagFilter;
+                      const matchSearch =
+                        newsSearch.trim() === '' ||
+                        item.title.toLowerCase().includes(newsSearch.toLowerCase()) ||
+                        item.summary.toLowerCase().includes(newsSearch.toLowerCase()) ||
+                        (item.content && item.content.toLowerCase().includes(newsSearch.toLowerCase()));
+                      return matchTag && matchSearch;
+                    })
+                    .map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => setSelectedNews(item)}
+                        className="flex flex-col group cursor-pointer bg-white rounded-xl border border-outline-variant overflow-hidden hover:shadow-lg hover:border-primary transition-all duration-300"
+                      >
+                        <div className="aspect-video overflow-hidden border-b border-outline-variant relative">
+                          <img
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            alt={item.title}
+                            src={getAssetUrl(item.image_url)}
+                          />
+                          <div className="absolute top-2.5 left-2.5">
+                            <span className="px-2 py-0.5 bg-primary text-white text-[10px] font-bold rounded">
+                              {item.tag}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-4 flex flex-col flex-grow">
+                          <div className="flex items-center gap-1.5 mb-1.5 text-xs text-on-surface-variant">
+                            <span className="material-symbols-outlined text-[14px] text-primary">calendar_today</span>
+                            <span>{item.date}</span>
+                          </div>
+                          <h5 className="text-sm font-bold text-on-surface mb-2 group-hover:text-primary transition-colors leading-snug font-be-vietnam line-clamp-2">
+                            {item.title}
+                          </h5>
+                          <p className="text-xs text-on-surface-variant line-clamp-2 mt-auto">
+                            {item.summary}
+                          </p>
+                          <div className="mt-3 pt-2 border-t border-outline-variant/60 flex items-center justify-between text-[11px] text-primary font-bold">
+                            <span>อ่านฉบับเต็ม</span>
+                            <span className="material-symbols-outlined text-[14px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+
+            {/* Archive Modal Footer */}
+            <div className="bg-surface-container-low border-t border-outline-variant px-6 py-4 flex justify-between items-center text-xs text-on-surface-variant">
+              <span>แสดงผลข่าวสารและระเบียบ ศ.ต.ภ. จากฐานข้อมูล MySQL</span>
+              <button
+                onClick={() => setIsAllNewsModalOpen(false)}
+                className="px-5 py-2 bg-primary text-white font-semibold rounded-lg hover:brightness-110 transition-all"
+              >
+                ปิด
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Model-Driven Mock Application Submission Modal */}
       {isSubmitModalOpen && (

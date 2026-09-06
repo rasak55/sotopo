@@ -59,14 +59,53 @@ try {
 
 $driver = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
 
-
 // Handling API Endpoints
 $endpoint = isset($_GET['endpoint']) ? $_GET['endpoint'] : '';
 
 switch ($endpoint) {
     case 'news':
-        $stmt = $db->query("SELECT * FROM news ORDER BY id DESC");
-        echo json_encode(["status" => "success", "data" => $stmt->fetchAll()]);
+        $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+        if ($id > 0) {
+            $stmt = $db->prepare("SELECT * FROM news WHERE id = ?");
+            $stmt->execute([$id]);
+            $item = $stmt->fetch();
+            if ($item) {
+                $item['id'] = intval($item['id']);
+                echo json_encode(["status" => "success", "data" => $item]);
+            } else {
+                echo json_encode(["status" => "error", "message" => "ไม่พบข้อมูลข่าวสาร"]);
+            }
+        } else {
+            $tag = isset($_GET['tag']) ? trim($_GET['tag']) : '';
+            $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+            $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 0;
+
+            $sql = "SELECT * FROM news WHERE 1=1";
+            $params = [];
+            if ($tag !== '' && $tag !== 'ทั้งหมด' && $tag !== 'all') {
+                $sql .= " AND tag = ?";
+                $params[] = $tag;
+            }
+            if ($search !== '') {
+                $sql .= " AND (title LIKE ? OR summary LIKE ? OR content LIKE ?)";
+                $like = "%" . $search . "%";
+                $params[] = $like;
+                $params[] = $like;
+                $params[] = $like;
+            }
+            $sql .= " ORDER BY id DESC";
+            if ($limit > 0) {
+                $sql .= " LIMIT " . $limit;
+            }
+
+            $stmt = $db->prepare($sql);
+            $stmt->execute($params);
+            $rows = $stmt->fetchAll();
+            foreach ($rows as &$row) {
+                $row['id'] = intval($row['id']);
+            }
+            echo json_encode(["status" => "success", "data" => $rows]);
+        }
         break;
 
     case 'committees':
@@ -80,7 +119,11 @@ switch ($endpoint) {
 
     case 'offices':
         $stmt = $db->query("SELECT * FROM offices ORDER BY id ASC");
-        echo json_encode(["status" => "success", "data" => $stmt->fetchAll()]);
+        $rows = $stmt->fetchAll();
+        foreach ($rows as &$row) {
+            $row['id'] = intval($row['id']);
+        }
+        echo json_encode(["status" => "success", "data" => $rows]);
         break;
 
     case 'announcements':
@@ -126,11 +169,16 @@ switch ($endpoint) {
             $data = $query_stmt->fetchAll();
         }
 
+        foreach ($data as &$d) {
+            $d['id'] = intval($d['id']);
+            $d['announcement_id'] = intval($d['announcement_id']);
+        }
+
         echo json_encode([
             "status" => "success",
             "data" => $data,
             "pagination" => [
-                "total_items" => $total_items,
+                "total_items" => intval($total_items),
                 "current_page" => $page,
                 "limit" => $limit,
                 "total_pages" => ceil($total_items / $limit)
@@ -150,6 +198,8 @@ switch ($endpoint) {
         $app = $stmt->fetch();
 
         if ($app) {
+            $app['id'] = intval($app['id']);
+            $app['step'] = intval($app['step']);
             echo json_encode(["status" => "success", "data" => $app]);
         } else {
             echo json_encode(["status" => "error", "message" => "ไม่พบข้อมูลรหัสติดตามนี้ในระบบ กรุณาตรวจสอบอีกครั้ง"]);
