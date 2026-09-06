@@ -69,6 +69,15 @@ erDiagram
         int step
         varchar updated_at
     }
+
+    ADMINS {
+        int id PK
+        varchar username UK
+        varchar password_hash
+        varchar full_name
+        varchar role
+        timestamp created_at
+    }
 ```
 
 ---
@@ -166,8 +175,22 @@ erDiagram
 
 ---
 
+### 7. ตาราง `admins` (บัญชีผู้ดูแลระบบและเจ้าหน้าที่)
+เก็บข้อมูลบัญชีผู้ใช้งานระบบหลังบ้าน (Admin Back-Office)
+
+| ฟิลด์ (Field) | ชนิดข้อมูล (Type) | Nullable | Key | คำอธิบาย |
+|---|---|---|---|---|
+| `id` | `INT` | NO | `PRIMARY KEY` | รหัสผู้ดูแลระบบ (Auto Increment) |
+| `username` | `VARCHAR(100)` | NO | `UNIQUE` | ชื่อผู้ใช้งานสำหรับเข้าสู่ระบบ |
+| `password_hash` | `VARCHAR(255)` | NO | - | รหัสผ่านที่เข้ารหัสด้วย `password_hash` (BCrypt) |
+| `full_name` | `VARCHAR(255)` | NO | - | ชื่อ-นามสกุล หรือตำแหน่งผู้ดูแลระบบ |
+| `role` | `VARCHAR(50)` | NO | - | ระดับสิทธิ์ (เช่น `superadmin`, `admin`, `staff`) |
+| `created_at` | `TIMESTAMP` | NO | - | วันที่และเวลาที่สร้างบัญชี |
+
+---
+
 ## 💾 ไฟล์ Schema และ Data Seed
 
 ไฟล์ SQL ทั้งหมดบรรจุอยู่ใน [mysql.sql](./mysql.sql)
-- รวมคำสั่ง `CREATE TABLE` ทั้ง 6 ตาราง
-- มีข้อมูลตัวอย่าง (Seed Data) ครบถ้วนพร้อมใช้งานทันที
+- รวมคำสั่ง `CREATE TABLE` ทั้ง 7 ตาราง
+- มีข้อมูลตัวอย่าง (Seed Data) ครบถ้วนพร้อมใช้งานทันที รวมถึงบัญชีแอดมินเริ่มต้น (`admin` / `admin123`)

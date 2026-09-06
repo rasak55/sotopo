@@ -10,6 +10,7 @@
 - **Response Format**: `application/json; charset=UTF-8`
 - **CORS Policy**: เปิดให้เรียกใช้งานได้จากทุก Origin (`Access-Control-Allow-Origin: *`)
 - **HTTP Methods ที่รองรับ**: `GET`, `POST`, `OPTIONS`
+- **Authentication Header**: `Authorization: Bearer <TOKEN>` (สำหรับ Admin Endpoints)
 
 ### โครงสร้างผลลัพธ์มาตรฐาน (Standard Response Structure)
 
@@ -18,6 +19,7 @@
 {
   "status": "success",
   "data": [ ... ],
+  "message": "ข้อความอธิบาย (ถ้ามี)",
   "pagination": { ... } // (กรณีมี Pagination)
 }
 ```
@@ -34,6 +36,7 @@
 
 ## 📌 สรุปรายการ Endpoints (Endpoints Summary)
 
+### 1. ฝั่งหน้าบ้าน (Public Endpoints)
 | Method | Endpoint Parameter | คำอธิบาย |
 |---|---|---|
 | `GET` | `?endpoint=news` | ดึงรายการข่าวสาร/กิจกรรม หรือดูข่าวสารราย ID |
@@ -43,274 +46,131 @@
 | `GET` | `?endpoint=status` | ตรวจสอบสถานะคำขอตามรหัสติดตาม (Tracking Number) |
 | `POST` | `?endpoint=submit_application` | ยื่นคำร้องขออนุมัติเดินทางไปต่างประเทศออนไลน์ |
 
+### 2. ฝั่งหลังบ้าน (Admin Endpoints - ต้องแนบ Bearer Token)
+| Method | Endpoint Parameter | คำอธิบาย |
+|---|---|---|
+| `POST` | `?endpoint=admin_login` | เข้าสู่ระบบผู้ดูแลระบบ (ไม่ต้องแนบ Token) |
+| `GET` | `?endpoint=admin_verify` | ตรวจสอบความถูกต้องของ Token |
+| `GET` | `?endpoint=admin_stats` | ดึงสถิติภาพรวมสำหรับ Dashboard |
+| `GET` | `?endpoint=admin_applications` | ดึงรายการคำขอทั้งหมด (พร้อมตัวกรองและค้นหา) |
+| `POST` | `?endpoint=admin_save_application` | สร้างหรือแก้ไขคำขอ และปรับเปลี่ยนขั้นตอน Step 1-4 |
+| `POST` | `?endpoint=admin_delete_application` | ลบคำขอเดินทาง |
+| `GET` | `?endpoint=admin_news` | ดึงรายการข่าวสารทั้งหมดสำหรับหน้าจัดการ |
+| `POST` | `?endpoint=admin_save_news` | สร้างหรือแก้ไขข่าวสาร (Rich HTML Content) |
+| `POST` | `?endpoint=admin_delete_news` | ลบข่าวสาร |
+| `GET` | `?endpoint=admin_announcements` | ดึงรายการประกาศพร้อมรายชื่อพระภิกษุในแต่ละประกาศ |
+| `POST` | `?endpoint=admin_save_announcement` | สร้างหรือแก้ไขประกาศและชุดรายชื่อพระภิกษุ |
+| `POST` | `?endpoint=admin_delete_announcement` | ลบประกาศและรายชื่อพระภิกษุ |
+| `POST` | `?endpoint=admin_save_committee` | เพิ่มหรือแก้ไขข้อมูลกรรมการ |
+| `POST` | `?endpoint=admin_delete_committee` | ลบข้อมูลกรรมการ |
+| `POST` | `?endpoint=admin_save_office` | เพิ่มหรือแก้ไขข้อมูลสำนักงาน |
+| `POST` | `?endpoint=admin_delete_office` | ลบข้อมูลสำนักงาน |
+| `POST` | `?endpoint=admin_change_password` | เปลี่ยนรหัสผ่านหรือแก้ไขโปรไฟล์แอดมิน |
+
 ---
 
-## 📖 รายละเอียดแต่ละ Endpoint (Detailed API Reference)
+## 📖 รายละเอียด Public Endpoints
 
 ### 1. ข่าวสารและกิจกรรม (News API)
-
-#### `GET /backend/api.php?endpoint=news`
-
-ดึงรายการข่าวสารทั้งหมด หรือค้นหา/กรองตามเงื่อนไข
-
-##### Query Parameters:
-| พารามิเตอร์ | ชนิดข้อมูล | จำเป็น | คำอธิบาย |
-|---|---|---|---|
-| `id` | Integer | ไม่จำเป็น | ระบุเพื่อดูเนื้อหาข่าวรายข้อแบบละเอียด (Full Rich Content) |
-| `tag` | String | ไม่จำเป็น | กรองข่าวตามหมวดหมู่ (เช่น `'ข่าวสาร'`, `'ประกาศ'`, `'สาระน่ารู้'`, `'การอบรม'`) |
-| `search` | String | ไม่จำเป็น | ค้นหาคำสำคัญในหัวข้อข่าว สรุปย่อ หรือเนื้อหา |
-| `limit` | Integer | ไม่จำเป็น | จำกัดจำนวนข่าวที่ส่งกลับ (เช่น `limit=4`) |
-
-##### ตัวอย่าง Request:
-```http
-GET /backend/api.php?endpoint=news&tag=ข่าวสาร&limit=5
-```
-
-##### ตัวอย่าง Response (รายการข่าว):
-```json
-{
-  "status": "success",
-  "data": [
-    {
-      "id": 1,
-      "tag": "ข่าวสาร",
-      "date": "๑๒ กรกฎาคม ๒๕๖๙",
-      "title": "การประชุมคณะกรรมการ ศ.ต.ภ. ครั้งที่ ๕/๒๕๖๙ พิจารณาคำขอเดินทางไปต่างประเทศ",
-      "summary": "สรุปผลการพิจารณาคำขอเดินทางไปปฏิบัติศาสนกิจในต่างประเทศประจำเดือนกรกฎาคม ๒๕๖๙ อนุมัติพระธรรมทูตจำนวน ๔๕ รูป",
-      "image_url": "/images/news1.jpg"
-    }
-  ]
-}
-```
-
-##### ตัวอย่าง Request (ข่าวรายข้อ):
-```http
-GET /backend/api.php?endpoint=news&id=1
-```
-
-##### ตัวอย่าง Response:
-```json
-{
-  "status": "success",
-  "data": {
-    "id": 1,
-    "tag": "ข่าวสาร",
-    "date": "๑๒ กรกฎาคม ๒๕๖๙",
-    "title": "การประชุมคณะกรรมการ ศ.ต.ภ. ครั้งที่ ๕/๒๕๖๙ พิจารณาคำขอเดินทางไปต่างประเทศ",
-    "summary": "สรุปผลการพิจารณาคำขอเดินทางไปปฏิบัติศาสนกิจในต่างประเทศประจำเดือนกรกฎาคม ๒๕๖๙ อนุมัติพระธรรมทูตจำนวน ๔๕ รูป",
-    "content": "<p>เมื่อวันที่ ๑๒ กรกฎาคม ๒๕๖๙ คณะกรรมการศูนย์ควบคุมการไปต่างประเทศของพระภิกษุสามเณร (ศ.ต.ภ.) ได้จัดประชุมครั้งที่ ๕/๒๕๖๙...</p>",
-    "image_url": "/images/news1.jpg"
-  }
-}
-```
-
----
+`GET /backend/api.php?endpoint=news`
+- Parameters: `id`, `tag`, `search`, `limit`
 
 ### 2. ทำเนียบคณะกรรมการ (Committees API)
-
-#### `GET /backend/api.php?endpoint=committees`
-
-ดึงข้อมูลรายนามคณะกรรมการ ศ.ต.ภ. เรียงตามลำดับชั้นบริหาร (`level`)
-
-##### ตัวอย่าง Request:
-```http
-GET /backend/api.php?endpoint=committees
-```
-
-##### ตัวอย่าง Response:
-```json
-{
-  "status": "success",
-  "data": [
-    {
-      "id": 1,
-      "name": "พระพรหมบัณฑิต (ประยูร ธมฺมจิตฺโต)",
-      "role": "ประธานคณะกรรมการ ศ.ต.ภ.",
-      "description": "กรรมการมหาเถรสมาคม, เจ้าอาวาสวัดประยุรวงศาวาสวรวิหาร, ประธานสภาสากลวันวิสาขบูชาโลก",
-      "image_url": "/images/comm1.jpg",
-      "level": 1
-    },
-    {
-      "id": 2,
-      "name": "พระธรรมโพธิวงศ์ (วีรยุทธ์ วีรยุทฺโธ)",
-      "role": "รองประธานคณะกรรมการ",
-      "description": "เจ้าอาวาสวัดไทยพุทธคยา หัวหน้าพระธรรมทูตสายประเทศอินเดีย-เนปาล",
-      "image_url": "/images/comm2.jpg",
-      "level": 2
-    }
-  ]
-}
-```
-
----
+`GET /backend/api.php?endpoint=committees`
 
 ### 3. ข้อมูลสำนักงาน (Offices API)
+`GET /backend/api.php?endpoint=offices`
 
-#### `GET /backend/api.php?endpoint=offices`
+### 4. ประกาศผลการอนุมัติ (Announcements API)
+`GET /backend/api.php?endpoint=announcements`
+- Parameters: `search`, `page`, `limit`
 
-ดึงข้อมูลสำนักงานใหญ่และศูนย์ประสานงาน
+### 5. ติดตามสถานะคำขอ (Status Tracking API)
+`GET /backend/api.php?endpoint=status&tracking_number=ST-2026-0001`
 
-##### ตัวอย่าง Request:
-```http
-GET /backend/api.php?endpoint=offices
-```
+### 6. ยื่นคำร้องขออนุมัติออนไลน์ (Submit Application API)
+`POST /backend/api.php?endpoint=submit_application`
 
-##### ตัวอย่าง Response:
+---
+
+## 🔐 รายละเอียด Admin Endpoints
+
+### 1. เข้าสู่ระบบ (Admin Login)
+#### `POST /backend/api.php?endpoint=admin_login`
 ```json
+// Request Body
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+// Response Body
 {
   "status": "success",
-  "data": [
+  "message": "เข้าสู่ระบบสำเร็จ",
+  "token": "eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiJ9...",
+  "admin": {
+    "id": 1,
+    "username": "admin",
+    "full_name": "ผู้ดูแลระบบ ศ.ต.ภ. ส่วนกลาง",
+    "role": "superadmin"
+  }
+}
+```
+
+### 2. ดึงสถิติภาพรวม (Admin Stats)
+#### `GET /backend/api.php?endpoint=admin_stats`
+```json
+// Response Body
+{
+  "status": "success",
+  "data": {
+    "total_applications": 8,
+    "pending_applications": 6,
+    "approved_applications": 2,
+    "step1_count": 2,
+    "step2_count": 2,
+    "step3_count": 2,
+    "step4_count": 2,
+    "total_news": 8,
+    "total_announcements": 9,
+    "total_approved_monks": 45,
+    "total_committees": 6,
+    "recent_applications": [ ... ]
+  }
+}
+```
+
+### 3. จัดการคำขอ (Save Application)
+#### `POST /backend/api.php?endpoint=admin_save_application`
+```json
+// Request Body
+{
+  "id": 1,
+  "monk_name": "พระมหาประเสริฐ สุเมโธ",
+  "temple": "วัดบวรนิเวศวิหาร",
+  "destination": "สหรัฐอเมริกา",
+  "status": "อนุมัติเรียบร้อย (รับเอกสารได้ที่ ศ.ต.ภ.)",
+  "step": 4
+}
+```
+
+### 4. จัดการประกาศและรายชื่อพระภิกษุ (Save Announcement with Monks)
+#### `POST /backend/api.php?endpoint=admin_save_announcement`
+```json
+// Request Body
+{
+  "id": 0,
+  "announcement_number": "ศ.ต.ภ. ๖/๒๕๖๙",
+  "topic": "อนุมัติพระภิกษุสามเณรเดินทางไปปฏิบัติศาสนกิจในต่างประเทศ",
+  "approve_date": "๑ สิงหาคม ๒๕๖๙",
+  "monks": [
     {
-      "id": 1,
-      "name": "สำนักงานใหญ่ ศ.ต.ภ. (ศูนย์ประสานงานส่วนกลาง)",
-      "address": "วัดสระเกศราชวรมหาวิหาร แขวงบ้านบาตร เขตป้อมปราบศัตรูพ่าย กรุงเทพมหานคร 10100",
-      "phone": "02-621-1085, 02-621-1086",
-      "hours": "วันจันทร์ - วันศุกร์ เวลา 08.30 - 16.30 น.",
-      "type": "สำนักงานใหญ่"
-    },
-    {
-      "id": 2,
-      "name": "ศูนย์อำนวยความสะดวกหนังสือเดินทาง (วัดประยุรวงศาวาส)",
-      "address": "วัดประยุรวงศาวาสวรวิหาร แขวงวัดกัลยาณ์ เขตธนบุรี กรุงเทพมหานคร 10600",
-      "phone": "02-465-5592",
-      "hours": "วันจันทร์ - วันเสาร์ เวลา 09.00 - 16.00 น.",
-      "type": "ศูนย์ประสานงาน"
+      "monk_name": "พระมหาทดสอบ ฐิตธมฺโม",
+      "temple": "วัดสระเกศ",
+      "destination": "สหรัฐอเมริกา",
+      "approve_date": "๑ สิงหาคม ๒๕๖๙"
     }
   ]
 }
 ```
-
----
-
-### 4. ประกาศผลการอนุมัติ (Announcements API)
-
-#### `GET /backend/api.php?endpoint=announcements`
-
-ค้นหารายชื่อพระภิกษุสามเณรที่ได้รับการอนุมัติการเดินทาง พร้อมระบบแบ่งหน้า
-
-##### Query Parameters:
-| พารามิเตอร์ | ชนิดข้อมูล | ค่าเริ่มต้น | คำอธิบาย |
-|---|---|---|---|
-| `search` | String | `""` | ค้นหาจากชื่อพระ, วัดต้นสังกัด, ประเทศปลายทาง หรือเลขที่ประกาศ |
-| `page` | Integer | `1` | หมายเลขหน้าที่ต้องการดึงข้อมูล |
-| `limit` | Integer | `10` | จำนวนรายการต่อหน้า |
-
-##### ตัวอย่าง Request:
-```http
-GET /backend/api.php?endpoint=announcements&search=สหรัฐอเมริกา&page=1&limit=10
-```
-
-##### ตัวอย่าง Response:
-```json
-{
-  "status": "success",
-  "data": [
-    {
-      "id": 1,
-      "announcement_id": 1,
-      "monk_name": "พระมหาบุญช่วย ปญฺญาวชิโร",
-      "temple": "วัดสระเกศราชวรมหาวิหาร",
-      "destination": "วัดไทยลอสแองเจลิส รัฐแคลิฟอร์เนีย สหรัฐอเมริกา",
-      "approve_date": "๑๒ ก.ค. ๒๕๖๙",
-      "announcement_number": "ศ.ต.ภ. ๕/๒๕๖๙",
-      "topic": "อนุมัติพระภิกษุสามเณรเดินทางไปปฏิบัติศาสนกิจในต่างประเทศ ประจำงวดเดือนกรกฎาคม ๒๕๖๙"
-    }
-  ],
-  "pagination": {
-    "total_items": 45,
-    "current_page": 1,
-    "limit": 10,
-    "total_pages": 5
-  }
-}
-```
-
----
-
-### 5. ติดตามสถานะคำขอ (Status Tracking API)
-
-#### `GET /backend/api.php?endpoint=status`
-
-ตรวจสอบสถานะคำขอผ่านรหัสติดตาม
-
-##### Query Parameters:
-| พารามิเตอร์ | ชนิดข้อมูล | จำเป็น | คำอธิบาย |
-|---|---|---|---|
-| `tracking_number` | String | **จำเป็น** | รหัสติดตามคำขอ (เช่น `ST-2026-0001`) |
-
-##### ตัวอย่าง Request:
-```http
-GET /backend/api.php?endpoint=status&tracking_number=ST-2026-0001
-```
-
-##### ตัวอย่าง Response (พบข้อมูล):
-```json
-{
-  "status": "success",
-  "data": {
-    "id": 1,
-    "tracking_number": "ST-2026-0001",
-    "monk_name": "พระสมุห์เอกชัย กิตฺติญาโณ",
-    "temple": "วัดประยุรวงศาวาสวรวิหาร",
-    "destination": "วัดพุทธาวาส รัฐเท็กซัส สหรัฐอเมริกา",
-    "status": "เสนอคณะกรรมการ ศ.ต.ภ. พิจารณา",
-    "step": 3,
-    "updated_at": "2026-07-14 10:30"
-  }
-}
-```
-
-##### ตัวอย่าง Response (ไม่พบข้อมูล):
-```json
-{
-  "status": "error",
-  "message": "ไม่พบข้อมูลรหัสติดตามนี้ในระบบ กรุณาตรวจสอบอีกครั้ง"
-}
-```
-
----
-
-### 6. ยื่นคำร้องขออนุมัติออนไลน์ (Submit Application API)
-
-#### `POST /backend/api.php?endpoint=submit_application`
-
-ยื่นคำร้องขออนุมัติเดินทางไปต่างประเทศออนไลน์
-
-##### Headers:
-```http
-Content-Type: application/json
-```
-
-##### Request Body:
-```json
-{
-  "monk_name": "พระมหาธนภัทร ฐิตสิริ",
-  "temple": "วัดพระเชตุพนวิมลมังคลาราม",
-  "destination": "วัดไทยกรุงวอชิงตัน ดี.ซี. สหรัฐอเมริกา"
-}
-```
-
-##### ตัวอย่าง Response (สำเร็จ):
-```json
-{
-  "status": "success",
-  "message": "ยื่นคำขอเรียบร้อยแล้ว",
-  "data": {
-    "tracking_number": "ST-2026-0006",
-    "monk_name": "พระมหาธนภัทร ฐิตสิริ",
-    "temple": "วัดพระเชตุพนวิมลมังคลาราม",
-    "destination": "วัดไทยกรุงวอชิงตัน ดี.ซี. สหรัฐอเมริกา",
-    "status": "ยื่นคำขอเข้าระบบ / รอตรวจสอบเอกสาร",
-    "step": 1,
-    "updated_at": "2026-09-06 13:00"
-  }
-}
-```
-
----
-
-## 🔒 ความปลอดภัยและข้อแนะนำ (Security Best Practices)
-
-1. **SQL Injection Protection**: ใช้ PDO Prepared Statements ในทุก Query ที่มีการรับพารามิเตอร์จากภายนอก
-2. **Input Sanitization**: ตรวจสอบและ Trim ค่าพารามิเตอร์ก่อนบันทึกหรือประมวลผล
-3. **Environment Security**: ไฟล์ `.env` ควรถูกป้องกันไม่ให้เปิดอ่านผ่านเว็บตรงๆ ใน Production Web Server (กำหนดใน `.htaccess` หรือ Nginx config)

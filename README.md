@@ -1,6 +1,6 @@
 # ศ.ต.ภ. - ศูนย์ควบคุมการไปต่างประเทศของพระภิกษุสามเณร (SOTOPO)
 
-ระบบสารสนเทศและการให้บริการออนไลน์ ศูนย์ควบคุมการไปต่างประเทศของพระภิกษุสามเณร (ศ.ต.ภ.) ภายใต้มหาเถรสมาคม สำหรับการบริหารจัดการ ติดตามสถานะคำขอเดินทาง ประกาศผลการอนุมัติ และเผยแพร่ข้อมูลข่าวสารพระธรรมทูตสายต่างประเทศ
+ระบบสารสนเทศและการให้บริการออนไลน์ ศูนย์ควบคุมการไปต่างประเทศของพระภิกษุสามเณร (ศ.ต.ภ.) ภายใต้มหาเถรสมาคม สำหรับการบริหารจัดการ ติดตามสถานะคำขอเดินทาง ประกาศผลการอนุมัติ เผยแพร่ข้อมูลข่าวสารพระธรรมทูตสายต่างประเทศ และระบบหลังบ้านสำหรับเจ้าหน้าที่ (Admin Back-Office)
 
 ---
 
@@ -18,6 +18,7 @@
 
 ## ✨ ฟีเจอร์หลักของระบบ (Key Features)
 
+### ฝั่งหน้าบ้าน (Public Portal)
 1. **ระบบประชาสัมพันธ์และข่าวสาร (News & Activities)**
    - แสดงข่าวสาร มติมหาเถรสมาคม กิจกรรมการประชุม และหลักสูตรอบรมพระธรรมทูต
    - รองรับการกรองตามหมวดหมู่ (Tag) ค้นหาคำสำคัญ (Search) และอ่านเนื้อหาฉบับเต็มผ่าน Modal แบบ Rich HTML
@@ -46,6 +47,22 @@
 
 ---
 
+### ฝั่งหลังบ้านสำหรับเจ้าหน้าที่ (Admin Back-Office) 🔐
+- **URL เข้าสู่ระบบ**: `#/admin`
+- **บัญชีเริ่มต้น (Default Credentials)**:
+  - **ชื่อผู้ใช้งาน (Username)**: `admin`
+  - **รหัสผ่าน (Password)**: `admin123`
+- **ฟังก์ชันการทำงานของ Admin**:
+  1. **แผงควบคุมภาพรวม (Dashboard)**: แสดงสถิติตัวเลขสรุปคำขอ, สถานะ Pipeline 4 ขั้นตอน, รายการคำขอล่าสุด
+  2. **จัดการคำขอเดินทาง (Applications CRUD)**: ค้นหา, กรองตาม Step 1-4, เปลี่ยนสถานะ/ขั้นตอนด่วน, เพิ่ม/แก้ไข/ลบ
+  3. **จัดการข่าวสารและกิจกรรม (News CRUD)**: สร้าง แก้ไข ลบข่าวสาร กำหนด Tag และแก้ไขเนื้อหา Rich HTML
+  4. **จัดการประกาศผลมติและรายชื่อพระภิกษุ (Announcements & Approved Monks CRUD)**: สร้างประกาศพร้อมเพิ่ม/แก้ไขรายชื่อพระภิกษุในแต่ละประกาศ
+  5. **จัดการทำเนียบคณะกรรมการ (Committees CRUD)**: เพิ่ม/แก้ไข/ลบ และจัดลำดับผู้บริหาร
+  6. **จัดการข้อมูลสำนักงาน (Offices CRUD)**: ปรับปรุงที่ตั้ง เบอร์ติดต่อ และเวลาทำการ
+  7. **ตั้งค่าบัญชีและรหัสผ่าน (Settings)**: เปลี่ยนชื่อผู้ดูแลระบบและรหัสผ่านความปลอดภัย
+
+---
+
 ## 🛠️ สถาปัตยกรรมและเทคโนโลยีที่ใช้ (Tech Stack)
 
 ### Frontend
@@ -53,14 +70,14 @@
 - **Build Tool**: Vite 6
 - **Styling**: Tailwind CSS (Material Design 3 & Warm Saffron Buddhist Color Palette)
 - **Icons & Typography**: Google Material Symbols Outlined, Google Fonts (`Sarabun`, `Be Vietnam Pro`)
-- **Routing**: Client-side Hash Routing (`#/`, `#/committee`, `#/office`, `#/visa`, `#/announcements`, `#/guide`)
+- **Routing**: Client-side Hash Routing (`#/`, `#/committee`, `#/office`, `#/visa`, `#/announcements`, `#/guide`, `#/admin`)
 
 ### Backend
 - **Language**: PHP 8.x
 - **Database Engine**: MySQL 8.x / MariaDB (รองรับ Fallback SQLite)
-- **Database Driver**: PDO (PHP Data Objects) with Prepared Statements
+- **Database Driver**: PDO (PHP Data Objects) with Prepared Statements & Token Authentication
 - **Architecture**: Lightweight RESTful JSON API (`backend/api.php`)
-- **Security & Config**: Environment variables (`.env`), CORS headers handling
+- **Security & Config**: Environment variables (`.env`), Password Hashing (BCrypt), CORS headers
 
 ---
 
@@ -89,7 +106,20 @@ sotopo/
 │   ├── images/           # รูปภาพโลโก้ กรรมการ ข่าวสาร และสถานที่
 │   └── screenshots/      # ภาพแคปเจอร์หน้าจอระบบ
 └── src/                  # React Application Source Code
-    ├── App.tsx           # คอมโพเนนต์หลักของระบบ (UI, State & Hash Router)
+    ├── App.tsx           # หน้าเว็บหลักและการ Routing
+    ├── admin/            # โมดูลระบบหลังบ้าน (Admin Back-Office)
+    │   ├── AdminApp.tsx           # Main Admin Router & Auth Guard
+    │   ├── AdminLayout.tsx        # Sidebar & Topbar Layout
+    │   ├── AdminLogin.tsx         # หน้าเข้าสู่ระบบเจ้าหน้าที่
+    │   ├── AdminDashboard.tsx     # แผงสถิติภาพรวม
+    │   ├── AdminApplications.tsx  # จัดการคำขอเดินทาง (CRUD & Step Change)
+    │   ├── AdminNews.tsx          # จัดการข่าวสารและบทความ
+    │   ├── AdminAnnouncements.tsx # จัดการประกาศและรายชื่อพระภิกษุ
+    │   ├── AdminCommittees.tsx    # จัดการคณะกรรมการ
+    │   ├── AdminOffices.tsx       # จัดการสำนักงาน
+    │   ├── AdminSettings.tsx      # ตั้งค่ารหัสผ่านและโปรไฟล์
+    │   ├── adminApi.ts            # Client API Helper & Token Manager
+    │   └── adminTypes.ts          # TypeScript Type Definitions
     ├── main.tsx          # React Root Mounting
     └── vite-env.d.ts     # Vite TypeScript type declarations
 ```
@@ -125,13 +155,9 @@ npm install
 ```bash
 npm run dev
 ```
-เปิดบราวเซอร์ไปที่: `http://localhost:5173/`
-
-**ฝั่ง Backend (PHP Built-in Server หรือรันผ่าน XAMPP/Apache):**
-หากต้องการทดสอบ Backend แยกด้วย PHP Built-in Server:
-```bash
-php -S 127.0.0.1:8000
-```
+เปิดบราวเซอร์ไปที่:
+- หน้าเว็บสาธารณะ: `http://localhost:5173/#/`
+- หน้าหลังบ้าน Admin: `http://localhost:5173/#/admin` (เข้าด้วย `admin` / `admin123`)
 
 ---
 

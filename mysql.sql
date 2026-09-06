@@ -64,6 +64,16 @@ CREATE TABLE IF NOT EXISTS `applications` (
   `updated_at` VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 6. Admins Table
+CREATE TABLE IF NOT EXISTS `admins` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `username` VARCHAR(100) NOT NULL UNIQUE,
+  `password_hash` VARCHAR(255) NOT NULL,
+  `full_name` VARCHAR(255) NOT NULL,
+  `role` VARCHAR(50) NOT NULL DEFAULT 'admin',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- --------------------------------------------------------
 -- Seeding Data (ระบบบริหารการไปต่างประเทศ ศ.ต.ภ.)
 -- --------------------------------------------------------
@@ -74,6 +84,7 @@ TRUNCATE TABLE `news`;
 TRUNCATE TABLE `committees`;
 TRUNCATE TABLE `offices`;
 TRUNCATE TABLE `applications`;
+TRUNCATE TABLE `admins`;
 
 -- Seeding news with full detailed contents
 INSERT INTO `news` (`id`, `tag`, `date`, `title`, `summary`, `content`, `image_url`) VALUES
@@ -152,3 +163,7 @@ INSERT INTO `applications` (`id`, `tracking_number`, `monk_name`, `temple`, `des
 (6, 'ST-2026-0006', 'พระมหากิตติศักดิ์ โกสโล', 'วัดมหาธาตุยุวราชรังสฤษฎิ์', 'สหราชอาณาจักร', 'อยู่ระหว่างเสนอเลขาธิการ ศ.ต.ภ. ลงนาม', 3, '2026-07-16 16:45'),
 (7, 'ST-2026-0007', 'พระมหาสมคิด คมฺภีรปญฺโญ', 'วัดสระเกศราชวรมหาวิหาร', 'ประเทศฝรั่งเศส', 'ตรวจสอบเอกสารเสร็จสิ้น กำลังเสนอคณะกรรมการ', 2, '2026-07-17 08:30'),
 (8, 'ST-2026-0008', 'พระอธิการอารีย์ ฐานวโร', 'วัดหนองป่าพง', 'ประเทศเยอรมนี', 'ยื่นคำขอเข้าระบบ / รอตรวจสอบเอกสาร', 1, '2026-07-18 09:00');
+
+-- Seeding admins (Default: username 'admin', password 'admin123')
+INSERT INTO `admins` (`id`, `username`, `password_hash`, `full_name`, `role`) VALUES
+(1, 'admin', '$2y$10$VWd4PbIxzz6cT.NR.X7e8O8QDtDOpbalLDcM8hjU.6proXaSMZPsu', 'ผู้ดูแลระบบ ศ.ต.ภ. ส่วนกลาง', 'superadmin');

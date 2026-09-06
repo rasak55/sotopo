@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { AdminApp } from './admin/AdminApp'
 
 const BASE_URL = import.meta.env.BASE_URL || '/';
 const API_BASE = BASE_URL.endsWith('/') ? `${BASE_URL}backend` : `${BASE_URL}/backend`;
@@ -78,6 +79,11 @@ export default function App() {
     window.location.hash = hash
   }
 
+  // Intercept Admin Route
+  if (currentHash.startsWith('#/admin')) {
+    return <AdminApp currentHash={currentHash} onNavigatePublic={navigateTo} />
+  }
+
   return (
     <div className="min-h-screen bg-background text-on-surface flex flex-col font-sans">
       {/* TopNavBar */}
@@ -119,6 +125,15 @@ export default function App() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <a
+            href="#/admin"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-primary/40 text-primary hover:bg-primary hover:text-white text-xs font-semibold shadow-2xs transition"
+            title="เข้าสู่ระบบสำหรับเจ้าหน้าที่และผู้ดูแลระบบ"
+          >
+            <span className="material-symbols-outlined text-base">admin_panel_settings</span>
+            <span>เจ้าหน้าที่ ศ.ต.ภ.</span>
+          </a>
+
           <button
             className="md:hidden p-2 text-primary hover:bg-surface-container rounded-full transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -130,7 +145,7 @@ export default function App() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-20 z-40 bg-white md:hidden flex flex-col p-6 gap-6 border-b border-outline-variant animate-fadeIn">
+        <div className="fixed inset-0 top-20 z-40 bg-white md:hidden flex flex-col p-6 gap-4 border-b border-outline-variant animate-fadeIn">
           {[
             { label: 'หน้าแรก', hash: '#/' },
             { label: 'คณะกรรมการ', hash: '#/committee' },
@@ -152,6 +167,15 @@ export default function App() {
               </a>
             )
           })}
+          <div className="pt-4 border-t border-gray-100 mt-2">
+            <a
+              href="#/admin"
+              className="text-base font-semibold py-2.5 px-4 rounded-xl bg-primary/10 text-primary flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-lg">admin_panel_settings</span>
+              <span>เข้าสู่ระบบเจ้าหน้าที่ (Admin Portal)</span>
+            </a>
+          </div>
         </div>
       )}
 
@@ -201,6 +225,10 @@ export default function App() {
           </a>
           <a className="text-sm text-on-surface-variant hover:text-primary underline transition-all" href="#/">
             แผนผังเว็บไซต์
+          </a>
+          <a className="text-sm font-semibold text-primary hover:underline transition-all flex items-center gap-1" href="#/admin">
+            <span className="material-symbols-outlined text-base">lock</span>
+            <span>ระบบเจ้าหน้าที่ (Admin)</span>
           </a>
         </div>
         <div className="text-center text-sm text-on-surface-variant">
